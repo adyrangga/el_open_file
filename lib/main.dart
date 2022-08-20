@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:el_open_file/constants/constants.dart';
+import 'package:el_open_file/constants/keys.dart';
 import 'package:flutter/material.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
@@ -16,11 +18,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Download & Open File',
+      title: Constants.titleAppsTx,
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Download & Open File'),
+      home: const MyHomePage(title: Constants.titleAppsTx),
     );
   }
 }
@@ -34,9 +36,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final String _pdfUrl =
-      'https://adyrangga.github.io/test_files/lorem-ipsum.pdf';
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,7 +47,8 @@ class _MyHomePageState extends State<MyHomePage> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              'Download & open file on native/3rd party device file viewer',
+              Constants.titleBodyTx,
+              key: Keys.titleBodyKey,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontSize: 18,
                   ),
@@ -59,11 +59,12 @@ class _MyHomePageState extends State<MyHomePage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 ElevatedButton(
+                  key: Keys.downloadAndOpenPDFButtonKey,
                   onPressed: () => _onPressHandler(
-                    url: _pdfUrl,
-                    fileName: _pdfUrl.split('/').last,
+                    url: Constants.pdfUrl,
+                    fileName: Constants.pdfUrl.split('/').last,
                   ),
-                  child: const Text('Download & Open PDF'),
+                  child: const Text(Constants.downloadAndOpenPDFTx),
                 ),
               ],
             ),
@@ -87,9 +88,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
     final file = File('${appStorage.path}/$fileName');
 
-    final isExist = await File(file.path).exists();
-    if (isExist) return file;
-
     try {
       final response = await Dio().get(
         url,
@@ -99,6 +97,7 @@ class _MyHomePageState extends State<MyHomePage> {
           receiveTimeout: 0,
         ),
       );
+      debugPrint('response: $response');
 
       final raf = file.openSync(mode: FileMode.write);
       raf.writeFromSync(response.data);
@@ -106,6 +105,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
       return file;
     } catch (e) {
+      debugPrint('err catch $e');
       return null;
     }
   }
